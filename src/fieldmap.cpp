@@ -1,11 +1,10 @@
 
 #include "fieldmap.h"
-#include "Colors.h"
 
 
 fieldMap::fieldMap()
 {
-  field_ = cv::Mat(600,900, CV_8UC3, colors::white );
+  field_ = cv::Mat(600,900, CV_8UC3, cv::Scalar(255,255,255) );
 }
 
 void fieldMap::printFieldMap() {
@@ -23,6 +22,6 @@ cv::Mat fieldMap::markPosition(int x, int y, cv::Scalar color) {
 }
 
 cv::Mat fieldMap::markPosition(int x, int y) {
-   cv::circle(field_,cv::Point(x,y),4,colors::red,-1);
+   cv::circle(field_,cv::Point(x,y),4,cv::Scalar(0,0,255),-1);
    return field_;
 }

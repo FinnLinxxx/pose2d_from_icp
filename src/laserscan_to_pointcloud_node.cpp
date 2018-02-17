@@ -43,12 +43,10 @@
 
 #include <Eigen/Dense>
 #include "flann/flann.hpp"
-#include "matrixcalc.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "Colors.h"
 #include "fieldmap.h"
 
 
@@ -63,6 +61,28 @@ static unsigned int mRaw;
 static int iii(0);
 
 #define DROP_PERCENTAGE_OF_CORRESPONDING_POINTS 0.25;
+
+
+Eigen::MatrixXd matrixTransformation(Eigen::MatrixXd toTransform, double transX, double transY, Eigen::MatrixXf Rot)
+{
+    //std::cout << "matrixTrans Rows " << toTransform.rows() << std::endl << "matrixTrans Cols " << toTransform.cols() << std::endl;
+
+    //std::cout << "alphaInGrad " << alphaInGrad << std::endl;
+
+    //std::cout << "BeofreCalc:\n" << toTransform << std::endl;
+
+    Eigen::MatrixXd RT(3,3); RT <<  Rot(0,0),  Rot(0,1), transX,
+                                    Rot(1,0),  Rot(1,1), transY,
+                                    0         , 0          , 1;
+
+    //std::cout << "RT Matrix:\n" << RT << std::endl;
+
+    Eigen::MatrixXd erg = RT*toTransform;
+
+    //std::cout << "erginMatrixCalc:\n" << erg << std::endl;
+    return erg;
+}
+
 
 struct pDists{
     int p_idx;
@@ -298,7 +318,7 @@ for(int iteration = 0; iteration < iterations;iteration++)
     for(unsigned int i = 0; i < mRaw; i++) {
     erg1.col(i) << local_map_raw(0,i), local_map_raw(1,i), 1;
     }
-    Eigen::MatrixXd erg = MatrixCalc::matrixTransformation(erg1.cast <double> (),trans(0),trans(1),Rot);
+    Eigen::MatrixXd erg = matrixTransformation(erg1.cast <double> (),trans(0),trans(1),Rot);
  
     TR = Rot*TR;
     
@@ -318,26 +338,26 @@ for(int iteration = 0; iteration < iterations;iteration++)
     delete[] match.ptr();  //clear
     delete[] mindist.ptr();
 
-//   { // Draw FieldMap
-//
-//    fieldMap map;
-//    map.drawFieldMap();
-//    int offsetCV = 150;
-//    for(unsigned int i = 0; i < nRaw; i++) {
-//     map.markPosition((global_map_raw(0,i)*100)+offsetCV, (global_map_raw(1,i)*100)+offsetCV, colors::setColor(0,0,255));
-//    }
-//
-//    for(unsigned int i = 0; i < mRaw; i++) {
-//     map.markPosition((local_map_raw(0,i)*100)+offsetCV, (local_map_raw(1,i)*100)+offsetCV, colors::red);
-//    }
-//
-//    for(unsigned int i = 0; i < mRaw; i++) {
-//     map.markPosition((erg_map_raw(0,i)*100)+offsetCV, (erg_map_raw(1,i)*100)+offsetCV, colors::green);
-//    }
-//
-//    map.printFieldMap();
-//  }
-//  cv::waitKey(0);
+   { // Draw FieldMap
+
+    fieldMap map;
+    map.drawFieldMap();
+    int offsetCV = 150;
+    for(unsigned int i = 0; i < nRaw; i++) {
+     map.markPosition((global_map_raw(0,i)*100)+offsetCV, (global_map_raw(1,i)*100)+offsetCV, cv::Scalar(255,0,0));
+    }
+
+    for(unsigned int i = 0; i < mRaw; i++) {
+     map.markPosition((local_map_raw(0,i)*100)+offsetCV, (local_map_raw(1,i)*100)+offsetCV, cv::Scalar(0,0,255));
+    }
+
+    for(unsigned int i = 0; i < mRaw; i++) {
+     map.markPosition((erg_map_raw(0,i)*100)+offsetCV, (erg_map_raw(1,i)*100)+offsetCV, cv::Scalar(0,255,0));
+    }
+
+    map.printFieldMap();
+  }
+  cv::waitKey(0);
 
     }
    global_map_raw = erg_map_raw;
