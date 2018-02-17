@@ -32,7 +32,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Declare a cpp executable
-add_executable(${PROJECT_NAME}_node src/laserscan_to_pointcloud_node.cpp src/fieldmap.cpp )
+add_executable(${PROJECT_NAME}_node src/pose2d_from_icp_node.cpp src/fieldmap.cpp )
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenCV_LIBS} )
 add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS})
 
