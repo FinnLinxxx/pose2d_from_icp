@@ -50,6 +50,7 @@
 
 
 static Eigen::MatrixXf TR(2,2); 
+static Eigen::MatrixXf TR_all(2,2); 
 static bool first_map_initialized(false);
 
 
@@ -136,10 +137,10 @@ public:
   void scanCallback (const sensor_msgs::LaserScan::ConstPtr& scan_in)
   {
    //only take x modulo pointclouds into account
-   std::cout << "ptcl seq: " << scan_in->header.seq << std::endl;
+   //std::cout << "ptcl seq: " << scan_in->header.seq << std::endl;
    if(!(scan_in->header.seq % seq_filter_value_)) {
 
-   std::cout << "taken" << scan_in->header.seq << std::endl;
+   //std::cout << "taken" << scan_in->header.seq << std::endl;
     filter_chain_.update(*scan_in, scan_filtered_);
 
     cloud2_.data.clear();
@@ -319,9 +320,18 @@ public:
   
         }
         global_map_raw = erg_map_raw;
-        std::cout << "Rotation: "<< TR << std::endl;
+
+        TR_all = TR*TR_all;
+        Eigen::Vector2f T_all(TT(0),
+                              TT(1));
+
+        TT_all = TR*T_all + TT_all; 
+        //std::cout << "Rotation: "<< TR_all << std::endl;
+
+        //std::cout << "Rotation: "<< TR << std::endl;
         TR << 1,0,0,1;
         std::cout << "\nx " << TT[0] << "  |  y: " << TT[1] << "\n" << std::endl;
+        std::cout << "\nx_all " << TT_all[0] << "  |  y_all: " << TT_all[1] << "\n" << std::endl;
         TT[0] = 0; 
         TT[1] = 0; 
 
@@ -363,6 +373,7 @@ protected:
   Eigen::MatrixXf Rot;
   Eigen::Vector2f trans;
   Eigen::Vector2f TT;
+  Eigen::Vector2f TT_all;
   unsigned int nRaw;
   unsigned int mRaw;
 
@@ -379,6 +390,7 @@ protected:
 int main(int argc, char** argv)
 {
   TR << 1,0,0,1;
+  TR_all << 1,0,0,1;
   ros::init(argc, argv, "vigir_laserscan_to_pointcloud_node");
 
   LaserscanToPointcloud ls;
